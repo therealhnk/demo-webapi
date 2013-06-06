@@ -1,0 +1,107 @@
+﻿<script>
+    $(document).ready(function () {
+        getUsers();
+        $("#update").click(function (e) {
+            e.preventDefault()
+            update();
+        });
+        $("#save").click(function (e) {
+            e.preventDefault()
+            save();
+        });
+    });
+    function save() {
+        $.ajax({
+            url: "api/user",
+            type: "post",
+            data: $('#myform').serialize(),
+            success: function (data) {
+                cleanForm();
+                getUsers();
+            }
+        });
+    }
+    function cleanForm() {
+        $("#id").val('');
+        $("#firstname").val('');
+        $("#lastname").val('');
+    }
+    function update() {
+        $.ajax({
+            url: "api/user",
+            type: "put",
+            data: $('#myform').serialize(),
+            success: function (data) {
+                cleanForm();
+                getUsers();
+            }
+        });
+    }
+    function getUsers() {
+        $('#list-user').text('');
+        $.ajax({
+            url: "api/user",
+            type: "get",
+            success: function (data) {
+                $('#template').tmpl(data).appendTo('#list-user');
+            }
+        });
+    }
+    function deleteUser(userid) {
+        $.ajax({
+            url: "api/user/" + userid,
+            type: "delete",
+            success: function () {
+                getUsers();
+            }
+        });
+    }
+    function editUser(userid) {
+        $.ajax({
+            url: "api/user/" + userid,
+            type: "get",
+            success: function (data) {
+                $("#id").val(data.Id);
+                $("#firstname").val(data.FirstName);
+                $("#lastname").val(data.LastName);
+            }
+        });
+    }
+</script>
+<script id="template" type="text/x-jquery-tmpl">
+    <li>${LastName} - ${FirstName}
+        <a href="#" onclick="deleteUser('${Id}');">Supprimer</a>
+        <a href="#" onclick="editUser('${Id}');">Editer</a>
+    </li>
+</script>
+<header>
+    <div class="content-wrapper">
+        <div class="float-left">
+            <p class="site-title">
+                <a href="~/">ASP.NET Web API</a>
+            </p>
+        </div>
+    </div>
+</header>
+<div id="body">
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>Welcome to ASP.NET Web API!</h1>
+                <h2></h2>
+            </hgroup>
+        </div>
+    </section>
+    <section class="content-wrapper main-content clear-fix">
+        <h3>tests web api:</h3>
+        <ul class="round" id="list-user">
+        </ul>
+        <form id="myform">
+            <input type="hidden" id="id" name="Id" />
+            <input type="text" id="firstname" name="FirstName" />
+            <input type="text" id="lastname" name="LastName" />
+            <input type="submit" id="save" value="enregistrer" />
+            <input type="submit" id="update" value="maj" />
+        </form>
+    </section>
+</div>
